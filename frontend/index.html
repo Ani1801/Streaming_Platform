@@ -2707,6 +2707,132 @@
         /* Updated slider initialization to handle both sliders */
         /* Updated slider initialization to handle both sliders */
     </script>
+    <!-- Floating Chatbot Icon -->
+<div id="chat-toggle" style="position: fixed; bottom: 20px; right: 20px; background: #0ef5b5; color: #1b1f38; padding: 15px; border-radius: 50%; cursor: pointer; font-weight: bold; box-shadow: 0 0 10px #00ffc3; z-index: 2000;">
+  💬
+</div>
+
+<!-- Chatbot Window -->
+<div id="chatbot" style="position: fixed; bottom: 80px; right: 20px; width: 350px; height: 500px; background-color: #1b1f38; color: white; border-radius: 15px; box-shadow: 0 0 10px #00ffc3; font-family: 'Segoe UI', sans-serif; display: none; flex-direction: column; z-index: 2000;">
+  <div style="background: #0ef5b5; color: #1b1f38; padding: 15px; border-top-left-radius: 15px; border-top-right-radius: 15px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
+    PrimeVision Chatbot
+    <span id="chat-close" style="cursor:pointer; font-size:16px; font-weight:bold;">✖</span>
+  </div>
+  <div id="chatbox" style="flex: 1; padding: 10px; overflow-y: auto;"></div>
+  <div id="options" style="padding: 10px; border-top: 1px solid #0ef5b5;"></div>
+  <div style="padding: 10px; display: flex; border-top: 1px solid #0ef5b5;">
+    <input id="userInput" type="text" placeholder="Type your message..." style="flex: 1; padding: 10px; border: none; border-radius: 5px;">
+    <button onclick="sendMessage()" style="background-color: #0ef5b5; color: #1b1f38; border: none; margin-left: 10px; padding: 10px 15px; border-radius: 5px; font-weight: bold;">Send</button>
+  </div>
+</div>
+
 </body>
+<script>
+  const chatbox = document.getElementById("chatbox");
+  const optionsDiv = document.getElementById("options");
+
+  const responses = {
+    "hi": "👋 Hello! Welcome to PrimeVision. How can I help you?",
+    "hello": "👋 Hi there! I’m your PrimeVision assistant.",
+    "plan": "📌 We offer Basic (₹199), Standard (₹499), and Premium (₹799) plans.",
+    "basic": "✅ Basic Plan: ₹199/month – 1 screen, SD quality.",
+    "standard": "✅ Standard Plan: ₹499/month – 2 screens, HD quality.",
+    "premium": "✅ Premium Plan: ₹799/month – 4 screens, Ultra HD quality.",
+    "watchlist": "📌 You can save movies/shows to your Watchlist for later viewing.",
+    "bye": "👋 Goodbye! Enjoy streaming on PrimeVision.",
+    "action": "💥 Action Movies: John Wick, Mad Max: Fury Road, The Dark Knight.",
+    "comedy": "😂 Comedy Movies: The Hangover, Jumanji, 3 Idiots.",
+    "romance": "💕 Romance Movies: The Notebook, La La Land, DDLJ.",
+    "horror": "👻 Horror Movies: The Conjuring, IT, Train to Busan.",
+    "sci-fi": "🚀 Sci-Fi Movies: Interstellar, Inception, The Matrix.",
+    "drama": "🎭 Drama Movies: Shawshank Redemption, Parasite, Joker.",
+    "show": "📺 Popular shows: Stranger Things, Money Heist, The Witcher."
+  };
+
+  function addMessage(sender, text, color = "white") {
+    chatbox.innerHTML += `<div style='margin: 5px 0; color:${color};'><strong>${sender}:</strong> ${text}</div>`;
+    chatbox.scrollTop = chatbox.scrollHeight;
+  }
+
+  function showOptions(options) {
+    optionsDiv.innerHTML = "";
+    options.forEach(opt => {
+      const btn = document.createElement("button");
+      btn.innerText = opt.label;
+      btn.style = "margin:5px; padding:8px 12px; border:none; border-radius:5px; background:#0ef5b5; color:#1b1f38; font-weight:bold; cursor:pointer;";
+      btn.onclick = opt.action;
+      optionsDiv.appendChild(btn);
+    });
+  }
+
+  function startChat() {
+    chatbox.innerHTML = "";
+    addMessage("Bot", "👋 Hi! I’m your PrimeVision assistant. Choose an option or type below:", "#0ef5b5");
+    showOptions([
+      { label: "📌 Subscription Plans", action: showPlans },
+      { label: "🎬 Movie Categories", action: showCategories },
+      { label: "📺 Popular Shows", action: showShows },
+      { label: "📌 Watchlist Help", action: () => addMessage("Bot", "📌 You can save movies/shows to your Watchlist for later viewing.", "#0ef5b5") },
+      { label: "❌ Exit", action: () => chatWindow.style.display = "none" }
+    ]);
+  }
+
+  function showPlans() {
+    addMessage("Bot", "Here are our subscription plans:", "#0ef5b5");
+    addMessage("Bot", "✅ Basic: ₹199/month – 1 screen, SD quality.", "#0ef5b5");
+    addMessage("Bot", "✅ Standard: ₹499/month – 2 screens, HD quality.", "#0ef5b5");
+    addMessage("Bot", "✅ Premium: ₹799/month – 4 screens, Ultra HD quality.", "#0ef5b5");
+    showOptions([{ label: "⬅ Back", action: startChat }]);
+  }
+
+  function showCategories() {
+    addMessage("Bot", "Select a movie category:", "#0ef5b5");
+    showOptions([
+      { label: "💥 Action", action: () => recommend("Action", ["John Wick", "Mad Max: Fury Road", "The Dark Knight"]) },
+      { label: "😂 Comedy", action: () => recommend("Comedy", ["The Hangover", "Jumanji", "3 Idiots"]) },
+      { label: "💕 Romance", action: () => recommend("Romance", ["The Notebook", "La La Land", "DDLJ"]) },
+      { label: "👻 Horror", action: () => recommend("Horror", ["The Conjuring", "IT", "Train to Busan"]) },
+      { label: "🚀 Sci-Fi", action: () => recommend("Sci-Fi", ["Interstellar", "Inception", "The Matrix"]) },
+      { label: "🎭 Drama", action: () => recommend("Drama", ["Shawshank Redemption", "Parasite", "Joker"]) },
+      { label: "⬅ Back", action: startChat }
+    ]);
+  }
+
+  function recommend(category, movies) {
+    addMessage("Bot", `${category} Movies: ${movies.join(", ")}`, "#0ef5b5");
+    showOptions([{ label: "⬅ Back", action: showCategories }]);
+  }
+
+  function showShows() {
+    addMessage("Bot", "📺 Popular shows: Stranger Things, Money Heist, The Witcher.", "#0ef5b5");
+    showOptions([{ label: "⬅ Back", action: startChat }]);
+  }
+
+  function sendMessage() {
+    const inputField = document.getElementById("userInput");
+    const userText = inputField.value.trim().toLowerCase();
+    if (userText === "") return;
+
+    addMessage("You", userText, "white");
+    inputField.value = "";
+
+    let botResponse = "❌ Sorry, I didn’t understand that. Try selecting an option or type 'plan', 'action', 'comedy', etc.";
+    for (let key in responses) {
+      if (userText.includes(key)) {
+        botResponse = responses[key];
+        break;
+      }
+    }
+
+    addMessage("Bot", botResponse, "#0ef5b5");
+  }
+
+  const chatToggle = document.getElementById("chat-toggle");
+  const chatWindow = document.getElementById("chatbot");
+  const chatClose = document.getElementById("chat-close");
+
+  chatToggle.onclick = () => { chatWindow.style.display = "flex"; startChat(); };
+  chatClose.onclick = () => chatWindow.style.display = "none";
+</script>
 
 </html>
