@@ -1266,7 +1266,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="views/favourites.html" class="nav-link">
                     <svg class="nav-icon" viewBox="0 0 24 24">
                         <path
                             d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
@@ -2707,132 +2707,558 @@
         /* Updated slider initialization to handle both sliders */
         /* Updated slider initialization to handle both sliders */
     </script>
-    <!-- Floating Chatbot Icon -->
-<div id="chat-toggle" style="position: fixed; bottom: 20px; right: 20px; background: #0ef5b5; color: #1b1f38; padding: 15px; border-radius: 50%; cursor: pointer; font-weight: bold; box-shadow: 0 0 10px #00ffc3; z-index: 2000;">
-  💬
-</div>
+    <!-- Enhanced Chatbot Styles -->
+    <style>
+        /* Chatbot Toggle Button */
+        .chatbot-toggle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #33E0B2, #0ef5b5);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 8px 32px rgba(51, 224, 178, 0.3);
+            z-index: 2000;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #1a1a2e;
+            backdrop-filter: blur(10px);
+        }
 
-<!-- Chatbot Window -->
-<div id="chatbot" style="position: fixed; bottom: 80px; right: 20px; width: 350px; height: 500px; background-color: #1b1f38; color: white; border-radius: 15px; box-shadow: 0 0 10px #00ffc3; font-family: 'Segoe UI', sans-serif; display: none; flex-direction: column; z-index: 2000;">
-  <div style="background: #0ef5b5; color: #1b1f38; padding: 15px; border-top-left-radius: 15px; border-top-right-radius: 15px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
-    PrimeVision Chatbot
-    <span id="chat-close" style="cursor:pointer; font-size:16px; font-weight:bold;">✖</span>
-  </div>
-  <div id="chatbox" style="flex: 1; padding: 10px; overflow-y: auto;"></div>
-  <div id="options" style="padding: 10px; border-top: 1px solid #0ef5b5;"></div>
-  <div style="padding: 10px; display: flex; border-top: 1px solid #0ef5b5;">
-    <input id="userInput" type="text" placeholder="Type your message..." style="flex: 1; padding: 10px; border: none; border-radius: 5px;">
-    <button onclick="sendMessage()" style="background-color: #0ef5b5; color: #1b1f38; border: none; margin-left: 10px; padding: 10px 15px; border-radius: 5px; font-weight: bold;">Send</button>
-  </div>
-</div>
+        .chatbot-toggle:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 12px 40px rgba(51, 224, 178, 0.4);
+        }
+
+        .chatbot-toggle:active {
+            transform: translateY(0) scale(0.95);
+        }
+
+        /* Chatbot Window */
+        .chatbot-window {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 380px;
+            height: 600px;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(51, 224, 178, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: none;
+            flex-direction: column;
+            z-index: 2000;
+            overflow: hidden;
+            transform: translateY(20px) scale(0.95);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .chatbot-window.active {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+
+        /* Chatbot Header */
+        .chatbot-header {
+            background: linear-gradient(135deg, #33E0B2, #0ef5b5);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #1a1a2e;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .chatbot-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chatbot-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #1a1a2e;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .chatbot-close:hover {
+            background: rgba(26, 26, 46, 0.2);
+            transform: scale(1.1);
+        }
+
+        /* Chat Messages Area */
+        .chatbot-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .chatbot-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chatbot-messages::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .chatbot-messages::-webkit-scrollbar-thumb {
+            background: rgba(51, 224, 178, 0.3);
+            border-radius: 3px;
+        }
+
+        .chatbot-messages::-webkit-scrollbar-thumb:hover {
+            background: rgba(51, 224, 178, 0.5);
+        }
+
+        /* Message Bubbles */
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.4;
+            word-wrap: break-word;
+            animation: messageSlide 0.3s ease-out;
+        }
+
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.bot {
+            background: linear-gradient(135deg, rgba(51, 224, 178, 0.2), rgba(14, 245, 181, 0.1));
+            border: 1px solid rgba(51, 224, 178, 0.3);
+            color: #ffffff;
+            align-self: flex-start;
+            border-bottom-left-radius: 6px;
+        }
+
+        .message.user {
+            background: linear-gradient(135deg, #33E0B2, #0ef5b5);
+            color: #1a1a2e;
+            align-self: flex-end;
+            border-bottom-right-radius: 6px;
+            font-weight: 500;
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: none;
+            align-self: flex-start;
+            background: rgba(51, 224, 178, 0.1);
+            border: 1px solid rgba(51, 224, 178, 0.2);
+            border-radius: 18px;
+            border-bottom-left-radius: 6px;
+            padding: 12px 16px;
+            max-width: 80px;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: #33E0B2;
+            border-radius: 50%;
+            animation: typingDot 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typingDot {
+            0%, 80%, 100% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Quick Options */
+        .chatbot-options {
+            padding: 15px 20px;
+            border-top: 1px solid rgba(51, 224, 178, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .option-btn {
+            background: rgba(51, 224, 178, 0.1);
+            border: 1px solid rgba(51, 224, 178, 0.3);
+            color: #33E0B2;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .option-btn:hover {
+            background: rgba(51, 224, 178, 0.2);
+            transform: translateY(-1px);
+        }
+
+        /* Input Area */
+        .chatbot-input-area {
+            padding: 20px;
+            border-top: 1px solid rgba(51, 224, 178, 0.1);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .chatbot-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(51, 224, 178, 0.2);
+            border-radius: 25px;
+            padding: 12px 20px;
+            color: #ffffff;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .chatbot-input:focus {
+            border-color: #33E0B2;
+            box-shadow: 0 0 0 3px rgba(51, 224, 178, 0.1);
+        }
+
+        .chatbot-input::placeholder {
+            color: #8892b0;
+        }
+
+        .chatbot-send {
+            background: linear-gradient(135deg, #33E0B2, #0ef5b5);
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #1a1a2e;
+            font-size: 16px;
+        }
+
+        .chatbot-send:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(51, 224, 178, 0.3);
+        }
+
+        .chatbot-send:active {
+            transform: scale(0.95);
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .chatbot-window {
+                width: calc(100vw - 40px);
+                height: calc(100vh - 120px);
+                right: 20px;
+                bottom: 80px;
+            }
+            
+            .chatbot-toggle {
+                right: 20px;
+                bottom: 20px;
+            }
+        }
+    </style>
+
+    <!-- Floating Chatbot Toggle -->
+    <button id="chat-toggle" class="chatbot-toggle">
+        💬
+    </button>
+
+    <!-- Chatbot Window -->
+    <div id="chatbot" class="chatbot-window">
+        <div class="chatbot-header">
+            <div class="chatbot-title">
+                <span>🤖</span>
+                <span>PrimeVision Assistant</span>
+            </div>
+            <button id="chat-close" class="chatbot-close">×</button>
+        </div>
+        
+        <div id="chatbox" class="chatbot-messages"></div>
+        
+        <div id="typing-indicator" class="typing-indicator">
+            <div class="typing-dots">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        </div>
+        
+        <div id="options" class="chatbot-options"></div>
+        
+        <div class="chatbot-input-area">
+            <input id="userInput" type="text" class="chatbot-input" placeholder="Type your message...">
+            <button onclick="sendMessage()" class="chatbot-send">➤</button>
+        </div>
+    </div>
 
 </body>
 <script>
+  // Enhanced Chatbot Functionality
   const chatbox = document.getElementById("chatbox");
   const optionsDiv = document.getElementById("options");
+  const typingIndicator = document.getElementById("typing-indicator");
+  const chatToggle = document.getElementById("chat-toggle");
+  const chatWindow = document.getElementById("chatbot");
+  const chatClose = document.getElementById("chat-close");
+  const userInput = document.getElementById("userInput");
 
   const responses = {
-    "hi": "👋 Hello! Welcome to PrimeVision. How can I help you?",
-    "hello": "👋 Hi there! I’m your PrimeVision assistant.",
-    "plan": "📌 We offer Basic (₹199), Standard (₹499), and Premium (₹799) plans.",
-    "basic": "✅ Basic Plan: ₹199/month – 1 screen, SD quality.",
-    "standard": "✅ Standard Plan: ₹499/month – 2 screens, HD quality.",
-    "premium": "✅ Premium Plan: ₹799/month – 4 screens, Ultra HD quality.",
-    "watchlist": "📌 You can save movies/shows to your Watchlist for later viewing.",
-    "bye": "👋 Goodbye! Enjoy streaming on PrimeVision.",
-    "action": "💥 Action Movies: John Wick, Mad Max: Fury Road, The Dark Knight.",
-    "comedy": "😂 Comedy Movies: The Hangover, Jumanji, 3 Idiots.",
-    "romance": "💕 Romance Movies: The Notebook, La La Land, DDLJ.",
-    "horror": "👻 Horror Movies: The Conjuring, IT, Train to Busan.",
-    "sci-fi": "🚀 Sci-Fi Movies: Interstellar, Inception, The Matrix.",
-    "drama": "🎭 Drama Movies: Shawshank Redemption, Parasite, Joker.",
-    "show": "📺 Popular shows: Stranger Things, Money Heist, The Witcher."
+    "hi": "👋 Hello! Welcome to PrimeVision. How can I help you today?",
+    "hello": "👋 Hi there! I'm your PrimeVision assistant. What would you like to know?",
+    "plan": "📌 We offer three subscription plans: Basic (₹199), Standard (₹499), and Premium (₹799).",
+    "basic": "✅ Basic Plan: ₹199/month – 1 screen, SD quality, access to our full library.",
+    "standard": "✅ Standard Plan: ₹499/month – 2 screens, HD quality, offline downloads.",
+    "premium": "✅ Premium Plan: ₹799/month – 4 screens, Ultra HD quality, exclusive content.",
+    "watchlist": "📌 You can save movies and shows to your Watchlist for later viewing. Just click the bookmark icon!",
+    "bye": "👋 Goodbye! Enjoy streaming on PrimeVision. Have a great day!",
+    "action": "💥 Popular Action Movies: John Wick, Mad Max: Fury Road, The Dark Knight, Mission Impossible.",
+    "comedy": "😂 Comedy Movies: The Hangover, Jumanji, 3 Idiots, Deadpool, The Office.",
+    "romance": "💕 Romance Movies: The Notebook, La La Land, DDLJ, Titanic, Pride & Prejudice.",
+    "horror": "👻 Horror Movies: The Conjuring, IT, Train to Busan, Hereditary, The Exorcist.",
+    "sci-fi": "🚀 Sci-Fi Movies: Interstellar, Inception, The Matrix, Blade Runner, Dune.",
+    "drama": "🎭 Drama Movies: Shawshank Redemption, Parasite, Joker, The Godfather, Schindler's List.",
+    "show": "📺 Popular Shows: Stranger Things, Money Heist, The Witcher, Breaking Bad, Game of Thrones.",
+    "help": "🤖 I can help you with subscription plans, movie recommendations, show information, and general questions about PrimeVision!",
+    "contact": "📞 For support, email us at support@primevision.com or call +91-800-123-4567",
+    "download": "📱 Download our mobile app from App Store or Google Play for offline viewing!"
   };
 
-  function addMessage(sender, text, color = "white") {
-    chatbox.innerHTML += `<div style='margin: 5px 0; color:${color};'><strong>${sender}:</strong> ${text}</div>`;
+  // Enhanced message function with proper styling
+  function addMessage(sender, text, isUser = false) {
+    const messageDiv = document.createElement("div");
+    messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+    messageDiv.textContent = text;
+    
+    chatbox.appendChild(messageDiv);
     chatbox.scrollTop = chatbox.scrollHeight;
   }
 
+  // Show typing indicator
+  function showTyping() {
+    typingIndicator.style.display = "flex";
+    chatbox.scrollTop = chatbox.scrollHeight;
+  }
+
+  // Hide typing indicator
+  function hideTyping() {
+    typingIndicator.style.display = "none";
+  }
+
+  // Enhanced options display
   function showOptions(options) {
     optionsDiv.innerHTML = "";
     options.forEach(opt => {
       const btn = document.createElement("button");
-      btn.innerText = opt.label;
-      btn.style = "margin:5px; padding:8px 12px; border:none; border-radius:5px; background:#0ef5b5; color:#1b1f38; font-weight:bold; cursor:pointer;";
+      btn.className = "option-btn";
+      btn.textContent = opt.label;
       btn.onclick = opt.action;
       optionsDiv.appendChild(btn);
     });
   }
 
+  // Start chat with welcome message
   function startChat() {
     chatbox.innerHTML = "";
-    addMessage("Bot", "👋 Hi! I’m your PrimeVision assistant. Choose an option or type below:", "#0ef5b5");
-    showOptions([
-      { label: "📌 Subscription Plans", action: showPlans },
-      { label: "🎬 Movie Categories", action: showCategories },
-      { label: "📺 Popular Shows", action: showShows },
-      { label: "📌 Watchlist Help", action: () => addMessage("Bot", "📌 You can save movies/shows to your Watchlist for later viewing.", "#0ef5b5") },
-      { label: "❌ Exit", action: () => chatWindow.style.display = "none" }
-    ]);
+    addMessage("PrimeVision Assistant", "👋 Hi! I'm your PrimeVision assistant. How can I help you today?");
+    
+    setTimeout(() => {
+      showOptions([
+        { label: "📌 Subscription Plans", action: showPlans },
+        { label: "🎬 Movie Categories", action: showCategories },
+        { label: "📺 Popular Shows", action: showShows },
+        { label: "📱 App Features", action: showFeatures },
+        { label: "❌ Close Chat", action: () => closeChat() }
+      ]);
+    }, 500);
   }
 
+  // Show subscription plans
   function showPlans() {
-    addMessage("Bot", "Here are our subscription plans:", "#0ef5b5");
-    addMessage("Bot", "✅ Basic: ₹199/month – 1 screen, SD quality.", "#0ef5b5");
-    addMessage("Bot", "✅ Standard: ₹499/month – 2 screens, HD quality.", "#0ef5b5");
-    addMessage("Bot", "✅ Premium: ₹799/month – 4 screens, Ultra HD quality.", "#0ef5b5");
-    showOptions([{ label: "⬅ Back", action: startChat }]);
+    showTyping();
+    setTimeout(() => {
+      hideTyping();
+      addMessage("PrimeVision Assistant", "Here are our subscription plans:");
+      addMessage("PrimeVision Assistant", "✅ Basic: ₹199/month – 1 screen, SD quality");
+      addMessage("PrimeVision Assistant", "✅ Standard: ₹499/month – 2 screens, HD quality");
+      addMessage("PrimeVision Assistant", "✅ Premium: ₹799/month – 4 screens, Ultra HD quality");
+      showOptions([{ label: "⬅ Back to Menu", action: startChat }]);
+    }, 1000);
   }
 
+  // Show movie categories
   function showCategories() {
-    addMessage("Bot", "Select a movie category:", "#0ef5b5");
-    showOptions([
-      { label: "💥 Action", action: () => recommend("Action", ["John Wick", "Mad Max: Fury Road", "The Dark Knight"]) },
-      { label: "😂 Comedy", action: () => recommend("Comedy", ["The Hangover", "Jumanji", "3 Idiots"]) },
-      { label: "💕 Romance", action: () => recommend("Romance", ["The Notebook", "La La Land", "DDLJ"]) },
-      { label: "👻 Horror", action: () => recommend("Horror", ["The Conjuring", "IT", "Train to Busan"]) },
-      { label: "🚀 Sci-Fi", action: () => recommend("Sci-Fi", ["Interstellar", "Inception", "The Matrix"]) },
-      { label: "🎭 Drama", action: () => recommend("Drama", ["Shawshank Redemption", "Parasite", "Joker"]) },
-      { label: "⬅ Back", action: startChat }
-    ]);
+    showTyping();
+    setTimeout(() => {
+      hideTyping();
+      addMessage("PrimeVision Assistant", "Choose a movie category:");
+      showOptions([
+        { label: "💥 Action", action: () => recommend("Action", ["John Wick", "Mad Max: Fury Road", "The Dark Knight", "Mission Impossible"]) },
+        { label: "😂 Comedy", action: () => recommend("Comedy", ["The Hangover", "Jumanji", "3 Idiots", "Deadpool"]) },
+        { label: "💕 Romance", action: () => recommend("Romance", ["The Notebook", "La La Land", "DDLJ", "Titanic"]) },
+        { label: "👻 Horror", action: () => recommend("Horror", ["The Conjuring", "IT", "Train to Busan", "Hereditary"]) },
+        { label: "🚀 Sci-Fi", action: () => recommend("Sci-Fi", ["Interstellar", "Inception", "The Matrix", "Blade Runner"]) },
+        { label: "🎭 Drama", action: () => recommend("Drama", ["Shawshank Redemption", "Parasite", "Joker", "The Godfather"]) },
+        { label: "⬅ Back to Menu", action: startChat }
+      ]);
+    }, 800);
   }
 
+  // Show recommendations
   function recommend(category, movies) {
-    addMessage("Bot", `${category} Movies: ${movies.join(", ")}`, "#0ef5b5");
-    showOptions([{ label: "⬅ Back", action: showCategories }]);
+    showTyping();
+    setTimeout(() => {
+      hideTyping();
+      addMessage("PrimeVision Assistant", `${category} Movies: ${movies.join(", ")}`);
+      showOptions([{ label: "⬅ Back to Categories", action: showCategories }]);
+    }, 1000);
   }
 
+  // Show popular shows
   function showShows() {
-    addMessage("Bot", "📺 Popular shows: Stranger Things, Money Heist, The Witcher.", "#0ef5b5");
-    showOptions([{ label: "⬅ Back", action: startChat }]);
+    showTyping();
+    setTimeout(() => {
+      hideTyping();
+      addMessage("PrimeVision Assistant", "📺 Popular Shows: Stranger Things, Money Heist, The Witcher, Breaking Bad, Game of Thrones");
+      showOptions([{ label: "⬅ Back to Menu", action: startChat }]);
+    }, 1000);
   }
 
+  // Show app features
+  function showFeatures() {
+    showTyping();
+    setTimeout(() => {
+      hideTyping();
+      addMessage("PrimeVision Assistant", "📱 App Features:");
+      addMessage("PrimeVision Assistant", "• Offline Downloads");
+      addMessage("PrimeVision Assistant", "• Multiple Device Support");
+      addMessage("PrimeVision Assistant", "• Parental Controls");
+      addMessage("PrimeVision Assistant", "• 4K Ultra HD Streaming");
+      showOptions([{ label: "⬅ Back to Menu", action: startChat }]);
+    }, 1000);
+  }
+
+  // Send message function
   function sendMessage() {
-    const inputField = document.getElementById("userInput");
-    const userText = inputField.value.trim().toLowerCase();
+    const userText = userInput.value.trim();
     if (userText === "") return;
 
-    addMessage("You", userText, "white");
-    inputField.value = "";
+    addMessage(userText, true);
+    userInput.value = "";
 
-    let botResponse = "❌ Sorry, I didn’t understand that. Try selecting an option or type 'plan', 'action', 'comedy', etc.";
-    for (let key in responses) {
-      if (userText.includes(key)) {
-        botResponse = responses[key];
-        break;
+    // Show typing indicator
+    showTyping();
+
+    // Simulate bot response delay
+    setTimeout(() => {
+      hideTyping();
+      
+      let botResponse = "❌ Sorry, I didn't understand that. Try selecting an option or type 'help' for assistance.";
+      
+      // Check for keyword matches
+      for (let key in responses) {
+        if (userText.toLowerCase().includes(key)) {
+          botResponse = responses[key];
+          break;
+        }
       }
-    }
 
-    addMessage("Bot", botResponse, "#0ef5b5");
+      addMessage("PrimeVision Assistant", botResponse);
+      
+      // Show options after response
+      setTimeout(() => {
+        showOptions([
+          { label: "📌 Plans", action: showPlans },
+          { label: "🎬 Movies", action: showCategories },
+          { label: "📺 Shows", action: showShows },
+          { label: "❌ Close", action: () => closeChat() }
+        ]);
+      }, 500);
+    }, 1500);
   }
 
-  const chatToggle = document.getElementById("chat-toggle");
-  const chatWindow = document.getElementById("chatbot");
-  const chatClose = document.getElementById("chat-close");
+  // Close chat function
+  function closeChat() {
+    chatWindow.classList.remove("active");
+    setTimeout(() => {
+      chatWindow.style.display = "none";
+    }, 300);
+  }
 
-  chatToggle.onclick = () => { chatWindow.style.display = "flex"; startChat(); };
-  chatClose.onclick = () => chatWindow.style.display = "none";
+  // Open chat function
+  function openChat() {
+    chatWindow.style.display = "flex";
+    setTimeout(() => {
+      chatWindow.classList.add("active");
+    }, 10);
+    startChat();
+  }
+
+  // Event listeners
+  chatToggle.onclick = openChat;
+  chatClose.onclick = closeChat;
+
+  // Enter key support
+  userInput.addEventListener("keypress", function(e) {
+    if (e.key === "Enter") {
+      sendMessage();
+    }
+  });
+
+  // Click outside to close
+  document.addEventListener("click", function(e) {
+    if (!chatWindow.contains(e.target) && !chatToggle.contains(e.target)) {
+      if (chatWindow.classList.contains("active")) {
+        closeChat();
+      }
+    }
+  });
 </script>
 
 </html>
